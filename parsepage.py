@@ -1,4 +1,4 @@
-from clusters import BeautifulSoup
+from bs4 import BeautifulSoup
 
 class UbuntuHelpPage:
     """Yksittäinen ubuntun helppisivu kielellä X"""
@@ -13,3 +13,17 @@ class UbuntuHelpPage:
         paragraphs = self.s.findAll("p",{"class","p"})
         for p in paragraphs:
             self.segments.append(p.text)
+
+
+
+class MsHelpPage(UbuntuHelpPage):
+    """Yksittäinen windowsin helppisivu kielellä X"""
+
+    def ParseContent(self):
+        """Etsi kaikki varsinainen tekstisisältö"""
+        paragraphs = self.s.findAll("p",{"class","ng-scope"})
+        for p in paragraphs:
+            self.segments.append(p.text)
+
+
+

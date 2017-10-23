@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup 
 from urllib.request import urlopen, Request
-from parsepage import UbuntuHelpPage
+from parsepage import UbuntuHelpPage, MsHelpPage
 from tmx import Tmx
 import pypandoc
+from selenium import webdriver  
+import time
 
 class MultiLangDocu:
     """Koko dokumentaatio käyttäjän määrittelemistä aihepiireistä"""
@@ -103,3 +105,34 @@ class ThematicCluster:
                 if tl != sl:
                     self.tmxdata[tl].append({"name":self.pagenames[idx],"content":this_tmx.CreateSegments(data[tl],tl)})
 
+def ParseMs(name, baseurl, langs):
+    """
+    Versio microsoftin help-sivuja varten
+
+    baseurl: korvaa kieli merkkijonolla [@lang]
+    """
+    browser = webdriver.Chrome()  
+    browser.implicitly_wait(3)
+    pages = {}
+    langcodes = {"en":"en-us","sv":"sv-se","fi":"fi-fi","fr":"fr-fr","de":"de-de","ru":"ru-ru"}
+    data=dict()
+    sl = "fi"
+    for lang in langs:
+        print(lang)
+        data[lang]=list()
+        browser.get(baseurl.replace("[@lang]",langcodes[lang]))
+        time.sleep(1)  
+        html = browser.execute_script("return document.getElementsByTagName('html')[0].innerHTML")
+        with open("/home/juho/Dropbox/pastebin/MS/{}_{}.html".format(name,lang),"w") as f:
+            f.write(html)
+        parsed_page = MsHelpPage(html)
+        parsed_page.ParseContent()
+        for p in parsed_page.segments:
+            data[lang].append(p)
+    this_tmx = Tmx(data[sl], sl)
+    for tl in langs:
+        if tl != sl:
+            print("outputting " + tl)
+            with open("output/MS/MICROSOFT_{}_{}-{}.tmx".format(name,sl,tl),"w") as f:
+                f.write(this_tmx.CreateSegments(data[tl],tl))
+    
