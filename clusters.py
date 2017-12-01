@@ -109,9 +109,12 @@ def ParseMs(name, baseurl, langs):
     """
     Versio microsoftin help-sivuja varten
 
+    langs: lista siitä, mitä kieliä haetaan (rajoittunut maksimissaan kaikiin alla näkyviin kieliin)
+    name: sivun nimi, niin kuin se halutaaan näkyvän tallennettavissa tiedostoissa
     baseurl: korvaa kieli merkkijonolla [@lang]
     """
     browser = webdriver.Chrome()  
+    browser = webdriver.Chrome("/usr/lib/chromium-browser/chromedriver")
     browser.implicitly_wait(3)
     pages = {}
     langcodes = {"en":"en-us","sv":"sv-se","fi":"fi-fi","fr":"fr-fr","de":"de-de","ru":"ru-ru"}
@@ -123,10 +126,11 @@ def ParseMs(name, baseurl, langs):
         browser.get(baseurl.replace("[@lang]",langcodes[lang]))
         time.sleep(1)  
         html = browser.execute_script("return document.getElementsByTagName('html')[0].innerHTML")
-        with open("/home/juho/Dropbox/pastebin/MS/{}_{}.html".format(name,lang),"w") as f:
-            f.write(html)
+        #with open("/home/juho/Dropbox/pastebin/MS/{}_{}.html".format(name,lang),"w") as f:
+        #    f.write(html)
         parsed_page = MsHelpPage(html)
         parsed_page.ParseContent()
+        #parsed_page.ParseForOutput(lang, name)
         for p in parsed_page.segments:
             data[lang].append(p)
     this_tmx = Tmx(data[sl], sl)

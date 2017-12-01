@@ -23,13 +23,16 @@ class Tmx():
                  "datatype":"PlainText"})
         body = etree.SubElement(tmx, "body")
         for idx, segment in enumerate(target_segments):
-            tu = etree.SubElement(body, "tu")
-            sl = etree.SubElement(tu, "tuv", {"lang":self.sl})
-            tl = etree.SubElement(tu, "tuv", {"lang":lang})
-            slseg = etree.SubElement(sl, "seg")
-            slseg.text = self.source_segments[idx]
-            tlseg = etree.SubElement(tl, "seg")
-            tlseg.text = segment.replace("\n","")
+            try:
+                tu = etree.SubElement(body, "tu")
+                sl = etree.SubElement(tu, "tuv", {"lang":self.sl})
+                tl = etree.SubElement(tu, "tuv", {"lang":lang})
+                slseg = etree.SubElement(sl, "seg")
+                slseg.text = self.source_segments[idx]
+                tlseg = etree.SubElement(tl, "seg")
+                tlseg.text = segment.replace("\n","")
+            except:
+                print("Problems: the segments don't match: {}".format(idx))
         return etree.tounicode(tmx, pretty_print=True)
 
 
